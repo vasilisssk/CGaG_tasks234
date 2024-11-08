@@ -51,73 +51,68 @@ public class Rasterization {
         int x = (int) (xc+r*Math.cos(Math.toRadians((ang1/90))*90)); int y = (int) (yc-r*Math.sin(Math.toRadians((ang1/90))*90)); // начинаем с начала четверти
         while (true) {
             int dx = x - xc; int dy = y - yc; // нужно для угла и определения четверти
-            double angleForDeBug = angle(dy,dx);
-            if (angle(dy,dx) == 0 && flag > 1) {
+            double angle = angle(dy,dx);
+            if (angle == 0 && flag > 1) {
                 counter++;
             }
-            if (angle(dy,dx) + counter * 360 >= ang1 && angle(dy,dx) + counter * 360 <= ang2) {
+            if (angle + counter * 360 >= ang1 && angle + counter * 360 <= ang2) {
                 pixelWriter.setColor(x,y,mainColor);
             }
-            if (angle(dy,dx) >= 0 && angle(dy,dx) < 90) {
+            if (angle >= 0 && angle < 90) {
                 flag = 1;
             }
-            else if (angle(dy,dx) >= 90 && angle(dy,dx) < 180) {
+            else if (angle >= 90 && angle < 180) {
                 flag = 2;
             }
-            else if (angle(dy,dx) >= 180 && angle(dy,dx) < 270) {
+            else if (angle >= 180 && angle < 270) {
                 flag = 3;
             }
-            else if (angle(dy,dx) >= 270 && angle(dy,dx) < 360) {
+            else if (angle >= 270 && angle < 360) {
                 flag = 4;
             }
             switch (flag) {
-                case 1: {
-                    if (isCenterInCircle(xc,yc,r,x,y-1)) {
-                        y-=1;
-                    } else if (isCenterInCircle(xc,yc,r,x-1,y)){
-                        x-=1;
+                case 1 -> {
+                    if (isCenterInCircle(xc, yc, r, x, y - 1)) {
+                        y -= 1;
+                    } else if (isCenterInCircle(xc, yc, r, x - 1, y - 1)) {
+                        x -= 1;
+                        y -= 1;
                     } else {
-                        y-=1;
-                        x-=1;
+                        x -= 1;
                     }
-                    break;
                 }
-                case 2: {
-                    if (isCenterInCircle(xc,yc,r,x-1,y)) {
-                        x-=1;
-                    } else if (isCenterInCircle(xc,yc,r,x,y+1)) {
-                        y+=1;
-                    }
-                    else {
-                        x-=1;
-                        y+=1;
-                    }
-                    break;
-                }
-                case 3: {
-                    if (isCenterInCircle(xc,yc,r,x,y+1)) {
-                        y+=1;
-                    } else if(isCenterInCircle(xc,yc,r,x+1,y)) {
-                        x+=1;
+                case 2 -> {
+                    if (isCenterInCircle(xc, yc, r, x - 1, y)) {
+                        x -= 1;
+                    } else if (isCenterInCircle(xc, yc, r, x - 1, y + 1)) {
+                        y += 1;
+                        x -= 1;
                     } else {
-                        x+=1;
-                        y+=1;
+                        y += 1;
                     }
-                    break;
                 }
-                case 4: {
-                    if (isCenterInCircle(xc,yc,r,x+1,y)) {
-                        x+=1;
-                    } else if (isCenterInCircle(xc,yc,r,x,y-1)) {
-                        y-=1;
-                    }else {
-                        x+=1;
-                        y-=1;
+                case 3 -> {
+                    if (isCenterInCircle(xc, yc, r, x, y + 1)) {
+                        y += 1;
+                    } else if (isCenterInCircle(xc, yc, r, x + 1, y + 1)) {
+                        x += 1;
+                        y += 1;
+                    } else {
+                        x += 1;
                     }
-                    break;
+                }
+                case 4 -> {
+                    if (isCenterInCircle(xc, yc, r, x + 1, y)) {
+                        x += 1;
+                    } else if (isCenterInCircle(xc, yc, r, x + 1, y - 1)) {
+                        y -= 1;
+                        x += 1;
+                    } else {
+                        y -= 1;
+                    }
                 }
             }
-            if (angle(dy,dx) > ang2 || counter > 0) {
+            if (angle > ang2 || counter > 0) {
                 break;
             }
         }
@@ -149,6 +144,6 @@ public class Rasterization {
     }
 
     public static boolean isCenterInCircle(int xc, int yc, int r, int x, int y) {
-        return Math.pow((x-0.5) - xc, 2) + Math.pow((y-0.5) - yc, 2) - r * r <= 0;
+        return Math.pow((x-0.5) - (xc-0.5), 2) + Math.pow((y-0.5) - (yc-0.5), 2) - ((r+0.5) * (r+0.5)) <= 0;
     }
 }

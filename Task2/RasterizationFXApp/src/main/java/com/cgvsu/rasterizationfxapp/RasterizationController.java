@@ -20,7 +20,7 @@ public class RasterizationController {
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
 
-        Rasterization.drawArc(canvas.getGraphicsContext2D(), (int) canvas.getWidth()/2, (int) canvas.getHeight()/2, 15, 0,720);
+        Rasterization.drawArc(canvas.getGraphicsContext2D(), (int) canvas.getWidth()/2, (int) canvas.getHeight()/2, 15, 0,360);
 
     }
 
