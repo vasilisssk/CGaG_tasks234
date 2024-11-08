@@ -24,9 +24,12 @@ public class Rasterization {
      */
     public static void drawArc(final GraphicsContext graphicsContext, int xc, int yc, int r, int ang1, int ang2) {
         if (ang2 < ang1) { // в ang1 меньший угол, в ang2 - больший
-            int temp = ang1;
-            ang1 = ang2;
+            int temp = ang1 - (ang1 / 361) * 360;
+            ang1 = ang2 - (ang2 / 361) * 360;
             ang2 = temp;
+        } else {
+            ang1 = ang1 - (ang1 / 361) * 360;
+            ang2 = ang2 - (ang2 / 361) * 360;
         }
         final PixelWriter pixelWriter = graphicsContext.getPixelWriter();
         final Color mainColor = Color.BLACK;
@@ -44,26 +47,27 @@ public class Rasterization {
         for (int i = yc-r; i < yc; i++) {
             pixelWriter.setColor(xc,i,Color.DARKGRAY);
         }
-        int x = (int) (xc+r*Math.cos(Math.toRadians((ang1/90))*90)); int y = (int) (yc-r*Math.sin(Math.toRadians((ang1/90))*90));
+        pixelWriter.setColor(xc, yc, Color.BLACK);
+        int x = (int) (xc+r*Math.cos(Math.toRadians((ang1/90))*90)); int y = (int) (yc-r*Math.sin(Math.toRadians((ang1/90))*90)); // начинаем с начала четверти
         while (true) {
             int dx = x - xc; int dy = y - yc; // нужно для угла и определения четверти
-            double angleForDeBug = angle(dx,dy);
-            if (angle(dx,dy) == 0) {
+            double angleForDeBug = angle(dy,dx);
+            if (angle(dy,dx) == 0 && flag > 1) {
                 counter++;
             }
-            if (angle(dx,dy) + counter * 360 >= ang1 && angle(dx,dy) <= ang2) {
+            if (angle(dy,dx) + counter * 360 >= ang1 && angle(dy,dx) + counter * 360 <= ang2) {
                 pixelWriter.setColor(x,y,mainColor);
             }
-            if (angle(dx,dy) >= 0 && angle(dx,dy) < 90) {
+            if (angle(dy,dx) >= 0 && angle(dy,dx) < 90) {
                 flag = 1;
             }
-            else if (angle(dx,dy) >= 90 && angle(dx,dy) < 180) {
+            else if (angle(dy,dx) >= 90 && angle(dy,dx) < 180) {
                 flag = 2;
             }
-            else if (angle(dx,dy) >= 180 && angle(dx,dy) < 270) {
+            else if (angle(dy,dx) >= 180 && angle(dy,dx) < 270) {
                 flag = 3;
             }
-            else if (angle(dx,dy) >= 270 && angle(dx,dy) < 360) {
+            else if (angle(dy,dx) >= 270 && angle(dy,dx) < 360) {
                 flag = 4;
             }
             switch (flag) {
@@ -113,7 +117,7 @@ public class Rasterization {
                     break;
                 }
             }
-            if (angle(dx,dy) > ang2 || counter > 0) {
+            if (angle(dy,dx) > ang2 || counter > 0) {
                 break;
             }
         }
@@ -124,24 +128,23 @@ public class Rasterization {
 
     }
 
-    public static double angle(int dx, int dy) {
-        if (dy == 0 && dx > 0) {
-            return 0;
-        }
-        if (dx == 0 && dy < 5) {
+    public static double angle(int dy, int dx) {
+        if (dx == 0 && dy < 0) {
             return 90;
+        } else if (dx == 0 && dy > 0) {
+            return 270;
         }
-        if (dx > 0 && dy > 0) {
-            return 270+Math.toDegrees(Math.atan((double)dx/dy));
+        else if (dx > 0 && dy > 0) {
+            return 360-Math.toDegrees(Math.atan((double)dy/dx));
+        }
+        else if (dx > 0 && dy <= 0) {
+            return Math.abs(Math.toDegrees(Math.atan((double)dy/dx)));
         }
         else if (dx < 0 && dy < 0) {
-            return 90+Math.toDegrees(Math.atan((double)dx/dy));
-        }
-        else if (dx > 0 && dy < 0) {
-            return 90+Math.toDegrees(Math.atan((double)dx/dy));
+            return 180-Math.toDegrees(Math.atan((double)dy/dx));
         }
         else { // (dx < 0 && dy > 0)
-            return 270+Math.toDegrees(Math.atan((double)dx/dy));
+            return 180-Math.toDegrees(Math.atan((double)dy/dx));
         }
     }
 
